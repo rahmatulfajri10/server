@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model tbl_pangkat{
+  kd_pkt Int @id @default(autoincrement())
+  ur_pkt String
+  tbl_personels tbl_personel[]
+}
+
+model tbl_korps{
+  kd_korps Int @id @default(autoincrement())
+  ur_korps String
+  tbl_personels tbl_personel[]
+}
+
+model tbl_kotama{
+  kd_ktm Int @id @default(autoincrement())
+  ur_ktm String
+  tbl_personels tbl_personel[]
+}
+
+model tbl_smkl{
+  kd_smkl Int @id @default(autoincrement())
+  ur_smkl String
+  tbl_personels tbl_personel[]
+}
+
+model tbl_status_pers{
+  kd_status Int @id @default(autoincrement())
+  ur_status String
+  tbl_personels tbl_personel[]
+}
+
+model tbl_img{
+  id_img Int @id @default(autoincrement())
+  url String
+  tbl_personel tbl_personel[]
+  tbl_tamu tbl_tamu[]
+  createdAt DateTime @default(now())
+}
+
+model tbl_role{
+  kd_role Int @id @default(autoincrement())
+  ur_role String
+  tbl_users tbl_user[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model tbl_status_kunjungan{
+  id_s_kunjungan Int @id @default(autoincrement())
+  ur_status String
+  tbl_log_pers tbl_log_pers[]
+  tbl_log_tamu tbl_log_tamu[]
+}
+
+model tbl_user{
+  id_user Int @id @default(autoincrement())
+  username String
+  password String
+  kd_role Int
+  nopers String
+  role tbl_role @relation(fields: [kd_role], references: [kd_role])
+  pers tbl_personel @relation(fields: [nopers], references: [nopers])
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+}
+
+model tbl_log_pers{
+  id_log Int @id @default(autoincrement())
+  in_out Int
+  createdAt DateTime @default(now())
+  nopers String
+  id_s_kunjungan Int?
+  pers tbl_personel @relation(fields: [nopers], references: [nopers])
+  kunjungan tbl_status_kunjungan? @relation(fields: [id_s_kunjungan], references: [id_s_kunjungan])
+}
+
+model tbl_log_tamu{
+  id_log Int @id @default(autoincrement())
+  in_out Int
+  createdAt DateTime @default(now())
+  nik String
+  id_s_kunjungan Int?
+  no tbl_tamu @relation(fields: [nik], references: [nik])
+  kunjungan tbl_status_kunjungan? @relation(fields: [id_s_kunjungan], references: [id_s_kunjungan])
+}
+
+model tbl_qrcode{
+  id_qrcode Int @id @default(autoincrement())
+  url String
+  expired DateTime
+  createdAt DateTime @default(now())
+  tbl_personel tbl_personel[]
+  tbl_tamu tbl_tamu[]
+}
+
+model tbl_personel{
+  nopers String @id @unique
+  email String
+  nm_pers String
+  telp String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?  @updatedAt
+  id_img Int
+  kd_pkt Int
+  kd_korps Int
+  kd_ktm Int
+  kd_smkl Int
+  kd_status Int
+  id_qrcode Int?
+  img tbl_img @relation(fields: [id_img], references: [id_img])
+  pkt tbl_pangkat @relation(fields: [kd_pkt], references: [kd_pkt])
+  korps tbl_korps @relation(fields: [kd_korps], references: [kd_korps])
+  ktm tbl_kotama @relation(fields: [kd_ktm], references: [kd_ktm])
+  smkl tbl_smkl @relation(fields: [kd_smkl], references: [kd_smkl])
+  status tbl_status_pers @relation(fields: [kd_status], references: [kd_status])
+  qrcode tbl_qrcode? @relation(fields: [id_qrcode], references: [id_qrcode])
+  tbl_log_pers tbl_log_pers[]
+  tbl_user tbl_user[]
+  
+}
+
+model tbl_tamu{
+  nik String @id @unique
+  email String
+  nm_tamu String
+  telp String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?  @updatedAt
+  id_img Int
+  instansi String
+  pekerjaan String
+  ket_tamu String
+  id_qrcode Int?
+  qrcode tbl_qrcode? @relation(fields: [id_qrcode], references: [id_qrcode])
+  img tbl_img @relation(fields: [id_img], references: [id_img])
+  tbl_log_tamu tbl_log_tamu[]
+
+}
